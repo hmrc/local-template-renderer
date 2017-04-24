@@ -1,4 +1,3 @@
-
 sudo: false
 language: scala
 scala:
@@ -11,4 +10,3 @@ cache:
 branches:
   except:
     - master
-    
