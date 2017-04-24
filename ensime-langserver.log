@@ -13,3 +13,17 @@
 [2017-04-24 12:32:26,304] DEBUG org.github.dragos.vscode.EnsimeLanguageServer - DocUriAtPointReq future completed: succes? false
 [2017-04-24 12:32:26,852] ERROR langserver.core.Connection - No notification type exists with method=$/cancelRequest
 [2017-04-24 12:32:26,852] ERROR langserver.core.Connection - No notification type exists with method=$/cancelRequest
+[2017-04-24 12:32:39,559] INFO org.github.dragos.vscode.EnsimeLanguageServer - Got hover request at (38, 52).
+[2017-04-24 12:32:39,559] INFO org.github.dragos.vscode.EnsimeLanguageServer - Got hover request at (38, 52).
+[2017-04-24 12:32:39,560] DEBUG org.github.dragos.vscode.EnsimeLanguageServer - DocUriAtPointReq future completed: succes? false
+[2017-04-24 12:32:39,560] DEBUG org.github.dragos.vscode.EnsimeLanguageServer - DocUriAtPointReq future completed: succes? false
+[2017-04-24 12:32:40,457] ERROR langserver.core.Connection - No notification type exists with method=$/cancelRequest
+[2017-04-24 12:32:40,457] ERROR langserver.core.Connection - No notification type exists with method=$/cancelRequest
+[2017-04-24 13:56:33,489] INFO langserver.core.MessageReader - End of stream, terminating thread
+[2017-04-24 13:56:33,489] INFO langserver.core.MessageReader - End of stream, terminating thread
+[2017-04-24 13:56:33,490] INFO org.github.dragos.vscode.EnsimeLanguageServer - Shutdown request
+[2017-04-24 13:56:33,490] INFO org.github.dragos.vscode.EnsimeLanguageServer - Shutdown request
+[2017-04-24 13:56:33,490] INFO org.github.dragos.vscode.EnsimeLanguageServer - Shutting down actor system.
+[2017-04-24 13:56:33,490] INFO org.github.dragos.vscode.EnsimeLanguageServer - Shutting down actor system.
+[2017-04-24 13:56:33,522] INFO org.github.dragos.vscode.EnsimeLanguageServer - Actor system down.
+[2017-04-24 13:56:33,522] INFO org.github.dragos.vscode.EnsimeLanguageServer - Actor system down.

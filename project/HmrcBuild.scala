@@ -34,6 +34,10 @@ object HmrcBuild extends Build {
       targetJvm := "jvm-1.8",
       libraryDependencies ++= Seq(
         "org.scalatra.scalate" %% "scalate-core"         % "1.7.1",
+        "uk.gov.hmrc"          %% "http-verbs"           % "6.3.0",
+        "org.scala-lang"       %   "scala-reflect" % "2.11.7",
+        "org.scala-lang"       %  "scala-library" % "2.11.7",
+        "org.scala-lang"       %  "scala-compiler" % "2.11.7",
         "org.scalatest"        %% "scalatest"            % "2.2.6"             % "test",
         "com.typesafe.play"    %% "play-test"            % PlayVersion.current % "test",
         "uk.gov.hmrc"          %% "hmrctest"             % "2.3.0"             % "test"
@@ -67,7 +71,7 @@ object Collaborators {
         <developer>
           <id>githubmo</id>
           <name>Mohammed Abdulrazeg</name>
-          <url>http://www.equalexperts.com</url>
+          <url>http://hmrc.github.io/</url>
         </developer>
       </developers>)
   }
