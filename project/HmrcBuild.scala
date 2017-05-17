@@ -26,21 +26,25 @@ object HmrcBuild extends Build {
 
   val appName = "local-template-renderer"
 
+  val appVersion = "0.0.1"
+
   lazy val microservice = Project(appName, file("."))
     .enablePlugins(SbtAutoBuildPlugin, SbtGitVersioning)
     .settings(scalaSettings: _*)
     .settings(defaultSettings(): _*)
+    .settings(version := appVersion)
     .settings(
       targetJvm := "jvm-1.8",
       libraryDependencies ++= Seq(
         "org.scalatra.scalate" %% "scalate-core"         % "1.7.1",
         "uk.gov.hmrc"          %% "http-verbs"           % "6.3.0",
-        "org.scala-lang"       %   "scala-reflect" % "2.11.7",
-        "org.scala-lang"       %  "scala-library" % "2.11.7",
-        "org.scala-lang"       %  "scala-compiler" % "2.11.7",
+        "org.scala-lang"       %   "scala-reflect"       % "2.11.7",
+        "org.scala-lang"       %  "scala-library"        % "2.11.7",
+        "org.scala-lang"       %  "scala-compiler"       % "2.11.7",
         "org.scalatest"        %% "scalatest"            % "2.2.6"             % "test",
         "com.typesafe.play"    %% "play-test"            % PlayVersion.current % "test",
-        "uk.gov.hmrc"          %% "hmrctest"             % "2.3.0"             % "test"
+        "uk.gov.hmrc"          %% "hmrctest"             % "2.3.0"             % "test",
+        "org.xmlunit"          %% "xmlunit-core"          % "2.3.0"             % "test"
       ),
       Collaborators(),
       crossScalaVersions := Seq("2.11.7", "2.10.4"),

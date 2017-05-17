@@ -58,7 +58,7 @@ trait MustacheRendererTrait {
                     content: Html): Html = {
 
     val attributes = Map[String, Any](
-      "pageTitle" -> title.getOrElse("GOV.UK - The best place to find government services and information"),
+      "pageTitle" -> title,
       "head" -> head.body,
       "bodyClasses" -> bodyClasses.getOrElse(""),
       "bodyEnd" -> bodyEnd.body,

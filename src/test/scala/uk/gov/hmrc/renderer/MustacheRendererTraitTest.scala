@@ -16,11 +16,13 @@
 
 package uk.gov.hmrc.renderer
 
-import org.fusesource.scalate.Template
-import org.scalatest.{FlatSpec, FunSuite, Matchers}
+import org.scalatest.{FlatSpec, Matchers}
+import org.xmlunit.builder.DiffBuilder
+import org.xmlunit.diff.{DefaultNodeMatcher, Diff, ElementSelectors}
 import play.twirl.api.Html
 import uk.gov.hmrc.play.http.ws.WSGet
 
+import scala.xml.{Elem, XML}
 /**
   * Created by mo on 24/04/2017.
   */
@@ -29,14 +31,14 @@ class MustacheRendererTraitTest extends FlatSpec with Matchers {
 
 
   "MustacheRenderer" should "render template" in new Setup {
-    val expectedOutputHtml = Html(
-      """
+    val expectedOutputHtml =
+      """<html>
         |<head>
-        |    <title>
-        |        first
-        |    </title>
+        |<title>
+        |first
+        |</title>
         |
-        |    head
+        |head
         |</head>
         |
         |<body class="classes">
@@ -66,9 +68,7 @@ class MustacheRendererTraitTest extends FlatSpec with Matchers {
         |
         |End of body
         |</body>
-        |</html>
-      """.stripMargin
-    )
+        |</html>""".stripMargin
 
     val result = mustacheRenderer.parseTemplate(
       Some("first"),
@@ -83,8 +83,69 @@ class MustacheRendererTraitTest extends FlatSpec with Matchers {
       Html("<p>Some Content</p>")
     )
 
-    result should be (expectedOutputHtml)
+    val diff = createDiff(expectedOutputHtml, result.toString)
+    println(diff.getDifferences)
+    diff.hasDifferences shouldBe false
+  }
 
+  it should "render a a template using template logic" in new Setup {
+    val expectedOutputHtml =
+      """
+        |<html>
+        |<head>
+        |<title>
+        |GOV.UK - The best place to find government services and information
+        |</title>
+        |
+        |head
+        |</head>
+        |
+        |<body class="classes">
+        |
+        |<header role="banner" id="global-header" class="with-proposition">
+        |    <div>
+        |
+        |        insideStory
+        |
+        |    </div>
+        |</header>
+        |
+        |
+        |<div>AfterParty</div>
+        |
+        |<p>Some Content</p>
+        |
+        |<footer>
+        |
+        |    <div>
+        |        Top footer
+        |        <div>
+        |            Footer Links
+        |        </div>
+        |    </div>
+        |</footer>
+        |
+        |End of body
+        |</body>
+        |</html>""".stripMargin
+
+
+    val result = mustacheRenderer.parseTemplate(
+      None,
+      Some("classes"),
+      Html("head"),
+      Html("End of body"),
+      Html("insideStory"),
+      Html("<div>AfterParty</div>"),
+      Html("Top footer"),
+      Some(Html("Footer Links")),
+      true,
+      Html("<p>Some Content</p>")
+    )
+
+    val diff = createDiff(expectedOutputHtml, result.toString)
+    println(diff.getControlSource)
+    diff.hasDifferences shouldBe false
   }
 
 }
@@ -94,13 +155,18 @@ trait Setup {
     override lazy val templateServiceAddress: String = ???
     override lazy val connection: WSGet = ???
     override val mustacheTemplateString =
-      """
+      """<html>
         |<head>
-        |    <title>
-        |        {{ pageTitle }}
-        |    </title>
+        |<title>
+        |{{#pageTitle}}
+        |{{ pageTitle }}
+        |{{/pageTitle}}
+        |{{^pageTitle}}
+        |GOV.UK - The best place to find government services and information
+        |{{/pageTitle}}
+        |</title>
         |
-        |    {{{ head }}}
+        |{{{ head }}}
         |</head>
         |
         |<body class="{{{ bodyClasses }}}">
@@ -130,7 +196,16 @@ trait Setup {
         |
         |{{{ bodyEnd }}}
         |</body>
-        |</html>
-      """.stripMargin
+        |</html>""".stripMargin
   }
+
+
+  def createDiff(expectedHtml: String, resultHtml: String): Diff = {
+    DiffBuilder.compare(expectedHtml)
+      .withTest(resultHtml)
+      .withNodeMatcher(new DefaultNodeMatcher(ElementSelectors.byNameAndText))
+      .build()
+  }
+
+  def xhtmlFromString(htmlString: String): Elem = XML.loadString(htmlString)
 }
