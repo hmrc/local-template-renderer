@@ -44,7 +44,7 @@ object HmrcBuild extends Build {
         "org.scalatest"        %% "scalatest"            % "2.2.6"             % "test",
         "com.typesafe.play"    %% "play-test"            % PlayVersion.current % "test",
         "uk.gov.hmrc"          %% "hmrctest"             % "2.3.0"             % "test",
-        "org.xmlunit"          %% "xmlunit-core"          % "2.3.0"             % "test"
+        "org.xmlunit"          % "xmlunit-core"         % "2.3.0"             % "test"
       ),
       Collaborators(),
       crossScalaVersions := Seq("2.11.7", "2.10.4"),
