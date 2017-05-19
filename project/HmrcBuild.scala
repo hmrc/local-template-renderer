@@ -26,13 +26,11 @@ object HmrcBuild extends Build {
 
   val appName = "local-template-renderer"
 
-  val appVersion = "0.2.0"
 
   lazy val microservice = Project(appName, file("."))
     .enablePlugins(SbtAutoBuildPlugin, SbtGitVersioning)
     .settings(scalaSettings: _*)
     .settings(defaultSettings(): _*)
-    .settings(version := appVersion)
     .settings(
       targetJvm := "jvm-1.8",
       libraryDependencies ++= Seq(
