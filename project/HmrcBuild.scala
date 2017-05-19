@@ -45,7 +45,7 @@ object HmrcBuild extends Build {
         "org.xmlunit"          % "xmlunit-core"         % "2.3.0"             % "test"
       ),
       Collaborators(),
-      crossScalaVersions := Seq("2.11.7", "2.10.4"),
+      crossScalaVersions := Seq("2.11.7"),
       resolvers := Seq(
         Resolver.bintrayRepo("hmrc", "releases"),
         Resolver.typesafeRepo("releases")
