@@ -45,15 +45,15 @@ trait MustacheRendererTrait {
   lazy val mustacheTemplate: Template = templateEngine.compileMoustache(mustacheTemplateString)
 
   def parseTemplate(title: Option[String],
-                    bodyClasses: Option[String],
-                    head: Html,
+                    bodyClasses: Option[String])
+                   (head: Html,
                     bodyEnd: Html,
                     insideHeader: Html,
                     afterHeader: Html,
                     footerTop: Html,
                     footerLinks: Option[Html],
-                    nav: Boolean = false,
-                    content: Html): Html = {
+                    nav: Boolean = false)
+                   (content: Html): Html = {
 
     val attributes = Map[String, Any](
       "pageTitle" -> title,

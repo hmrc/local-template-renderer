@@ -72,15 +72,13 @@ class MustacheRendererTraitTest extends FlatSpec with Matchers {
 
     val result = mustacheRenderer.parseTemplate(
       Some("first"),
-      Some("classes"),
-      Html("head"),
+      Some("classes"))(Html("head"),
       Html("End of body"),
       Html("insideStory"),
       Html("<div>AfterParty</div>"),
       Html("Top footer"),
       Some(Html("Footer Links")),
-      true,
-      Html("<p>Some Content</p>")
+      true)(Html("<p>Some Content</p>")
     )
 
     val diff = createDiff(expectedOutputHtml, result.toString)
@@ -132,16 +130,13 @@ class MustacheRendererTraitTest extends FlatSpec with Matchers {
 
     val result = mustacheRenderer.parseTemplate(
       None,
-      Some("classes"),
-      Html("head"),
+      Some("classes"))(Html("head"),
       Html("End of body"),
       Html("insideStory"),
       Html("<div>AfterParty</div>"),
       Html("Top footer"),
       Some(Html("Footer Links")),
-      true,
-      Html("<p>Some Content</p>")
-    )
+      true)( Html("<p>Some Content</p>"))
 
     val diff = createDiff(expectedOutputHtml, result.toString)
     println(diff.getControlSource)
