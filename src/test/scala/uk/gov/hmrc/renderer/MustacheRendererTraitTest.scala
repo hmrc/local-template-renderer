@@ -154,7 +154,7 @@ trait Setup {
   val mustacheRenderer = new MustacheRendererTrait {
     override lazy val templateServiceAddress: String = ???
     override lazy val connection: WSGet = ???
-    override val mustacheTemplateString =
+    override lazy val mustacheTemplateString =
       """<html>
         |<head>
         |<title>
