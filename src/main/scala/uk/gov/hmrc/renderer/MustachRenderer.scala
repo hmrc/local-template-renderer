@@ -25,14 +25,7 @@ import uk.gov.hmrc.play.http.logging.MdcLoggingExecutionContext._
 import scala.concurrent.Await
 import scala.concurrent.duration._
 
-class MustacheRenderer(override val connection: WSGet, override val templateServiceAddress: String) extends MustacheRendererTrait {
-
-  val mustacheTemplateString: String = getTemplate()(new HeaderCarrier())
-
-  private def getTemplate()(implicit headerCarrier: HeaderCarrier): String = {
-    Await.result[String](connection.doGet(templateServiceAddress)(new HeaderCarrier()).map(_.body), 10 seconds)
-  }
-}
+class MustacheRenderer(override val connection: WSGet, override val templateServiceAddress: String) extends MustacheRendererTrait
 
 trait MustacheRendererTrait {
 
@@ -40,7 +33,12 @@ trait MustacheRendererTrait {
 
   val templateServiceAddress: String
 
-  val mustacheTemplateString: String
+  val mustacheTemplateString: String = getTemplate
+
+  protected def getTemplate: String = {
+    implicit val hc = HeaderCarrier()
+    Await.result[String](connection.doGet(templateServiceAddress).map(_.body), 10 seconds)
+  }
 
   private val templateEngine = new TemplateEngine()
 
