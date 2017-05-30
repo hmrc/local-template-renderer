@@ -20,6 +20,7 @@ import org.scalatest.{FlatSpec, Matchers}
 import org.xmlunit.builder.DiffBuilder
 import org.xmlunit.diff.{DefaultNodeMatcher, Diff, ElementSelectors}
 import play.twirl.api.Html
+import uk.gov.hmrc.play.http.HeaderCarrier
 import uk.gov.hmrc.play.http.ws.WSGet
 
 import scala.xml.{Elem, XML}
@@ -27,7 +28,6 @@ import scala.xml.{Elem, XML}
   * Created by mo on 24/04/2017.
   */
 class MustacheRendererTraitTest extends FlatSpec with Matchers {
-
 
 
   "MustacheRenderer" should "render template" in new Setup {
@@ -71,14 +71,18 @@ class MustacheRendererTraitTest extends FlatSpec with Matchers {
         |</html>""".stripMargin
 
     val result = mustacheRenderer.parseTemplate(
-      Some("first"),
-      Some("classes"))(Html("head"),
-      Html("End of body"),
-      Html("insideStory"),
-      Html("<div>AfterParty</div>"),
-      Html("Top footer"),
-      Some(Html("Footer Links")),
-      true)(Html("<p>Some Content</p>")
+      Html("<p>Some Content</p>"),
+      Map(
+        "pageTitle" -> "first",
+        "head" -> Html("head"),
+        "bodyClasses" -> "classes",
+        "bodyEnd" -> Html("End of body"),
+        "nav" -> true,
+        "insideHeader" -> Html("insideStory"),
+        "afterHeader" ->  Html("<div>AfterParty</div>"),
+        "footerTop" -> Html("Top footer"),
+        "footerLinks" -> Some(Html("Footer Links"))
+      )
     )
 
     val diff = createDiff(expectedOutputHtml, result.toString)
@@ -129,14 +133,18 @@ class MustacheRendererTraitTest extends FlatSpec with Matchers {
 
 
     val result = mustacheRenderer.parseTemplate(
-      None,
-      Some("classes"))(Html("head"),
-      Html("End of body"),
-      Html("insideStory"),
-      Html("<div>AfterParty</div>"),
-      Html("Top footer"),
-      Some(Html("Footer Links")),
-      true)( Html("<p>Some Content</p>"))
+      Html("<p>Some Content</p>"),
+      Map(
+        "head" -> Html("head"),
+        "bodyClasses" -> "classes",
+        "bodyEnd" -> Html("End of body"),
+        "nav" -> true,
+        "insideHeader" -> Html("insideStory"),
+        "afterHeader" ->  Html("<div>AfterParty</div>"),
+        "footerTop" -> Html("Top footer"),
+        "footerLinks" -> Some(Html("Footer Links"))
+      )
+    )
 
     val diff = createDiff(expectedOutputHtml, result.toString)
     println(diff.getControlSource)
@@ -149,7 +157,7 @@ trait Setup {
   val mustacheRenderer = new MustacheRendererTrait {
     override lazy val templateServiceAddress: String = ???
     override lazy val connection: WSGet = ???
-    override lazy val mustacheTemplateString =
+    override lazy val mustacheTemplateString: String =
       """<html>
         |<head>
         |<title>
@@ -203,4 +211,6 @@ trait Setup {
   }
 
   def xhtmlFromString(htmlString: String): Elem = XML.loadString(htmlString)
+
+  implicit val hc: HeaderCarrier = HeaderCarrier()
 }
