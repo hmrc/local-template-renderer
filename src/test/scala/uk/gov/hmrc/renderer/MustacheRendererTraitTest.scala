@@ -161,7 +161,8 @@ trait Setup {
     override lazy val akkaSystem: ActorSystem = ???
     override lazy val templateServiceAddress: String = ???
     override lazy val connection: WSGet = ???
-    override def getTemplate: String = """<html>
+    override def getTemplate: String =
+      """<html>
         |<head>
         |<title>
         |{{#pageTitle}}
@@ -188,7 +189,7 @@ trait Setup {
         |
         |{{{ afterHeader }}}
         |
-        |{{{ content }}}
+        |{{{ article }}}
         |
         |<footer>
         |
