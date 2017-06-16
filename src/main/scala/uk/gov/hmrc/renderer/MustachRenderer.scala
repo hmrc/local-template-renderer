@@ -16,38 +16,53 @@
 
 package uk.gov.hmrc.renderer
 
+import akka.actor.{ActorSystem, Cancellable}
 import org.fusesource.scalate.{Template, TemplateEngine}
+import play.libs.Akka
 import play.twirl.api.Html
 import uk.gov.hmrc.play.http.HeaderCarrier
 import uk.gov.hmrc.play.http.ws.WSGet
 import uk.gov.hmrc.play.http.logging.MdcLoggingExecutionContext._
 
-import scala.concurrent.Await
+import scala.concurrent.{Await, ExecutionContext}
 import scala.concurrent.duration._
 
 class MustacheRenderer(override val connection: WSGet, override val templateServiceAddress: String) extends MustacheRendererTrait
 
 trait MustacheRendererTrait {
 
+  lazy val akkaSystem: ActorSystem = Akka.system()
+
   val connection: WSGet
 
   val templateServiceAddress: String
-
-  lazy val mustacheTemplateString: String = getTemplate
 
   protected def getTemplate: String = {
     implicit val hc = HeaderCarrier()
     Await.result[String](connection.doGet(templateServiceAddress).map(_.body), 10 seconds)
   }
 
-  private lazy val templateEngine = new TemplateEngine()
+  protected lazy val templateEngine = new TemplateEngine()
 
-  lazy val mustacheTemplate: Template = templateEngine.compileMoustache(mustacheTemplateString)
+  var mustacheTemplate: Template = _
+
+  updateTemplate(getTemplate)
+
+  //app.injector.instanceOf[ApplicationLifecycle].addStopHook(() => Future(cancellable.cancel()))
+  def scheduleGrabbingTemplate()(implicit ec: ExecutionContext): Cancellable = {
+    akkaSystem.scheduler.schedule(10 milliseconds, 10 minutes) {
+      updateTemplate(getTemplate)
+    }
+  }
+
+  private def updateTemplate(mustacheTemplateString: String) = {
+    mustacheTemplate = templateEngine.compileMoustache(mustacheTemplateString)
+  }
 
   def parseTemplate(content: Html, extraArgs: Map[String, Any])(implicit hc: HeaderCarrier): Html = {
 
     val attributes: Map[String, Any] = Map(
-      "content" -> content.body
+      "article" -> content.body
     ) ++ extraArgs
 
     Html(templateEngine.layout("outPut.ssp", mustacheTemplate, attributes))

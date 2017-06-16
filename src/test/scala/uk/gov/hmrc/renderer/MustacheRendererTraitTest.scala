@@ -16,18 +16,21 @@
 
 package uk.gov.hmrc.renderer
 
+import akka.actor.ActorSystem
+import org.fusesource.scalate.Template
 import org.scalatest.{FlatSpec, Matchers}
 import org.xmlunit.builder.DiffBuilder
 import org.xmlunit.diff.{DefaultNodeMatcher, Diff, ElementSelectors}
 import play.twirl.api.Html
 import uk.gov.hmrc.play.http.HeaderCarrier
 import uk.gov.hmrc.play.http.ws.WSGet
+import uk.gov.hmrc.play.test.WithFakeApplication
 
 import scala.xml.{Elem, XML}
 /**
   * Created by mo on 24/04/2017.
   */
-class MustacheRendererTraitTest extends FlatSpec with Matchers {
+class MustacheRendererTraitTest extends FlatSpec with Matchers with WithFakeApplication {
 
 
   "MustacheRenderer" should "render template" in new Setup {
@@ -155,10 +158,10 @@ class MustacheRendererTraitTest extends FlatSpec with Matchers {
 
 trait Setup {
   val mustacheRenderer = new MustacheRendererTrait {
+    override lazy val akkaSystem: ActorSystem = ???
     override lazy val templateServiceAddress: String = ???
     override lazy val connection: WSGet = ???
-    override lazy val mustacheTemplateString: String =
-      """<html>
+    override def getTemplate: String = """<html>
         |<head>
         |<title>
         |{{#pageTitle}}
