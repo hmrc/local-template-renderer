@@ -66,9 +66,9 @@ object Collaborators {
         </license>
       </licenses>
       <scm>
-        <connection>scm:git@github.com:hmrc/local-template-resolver.git</connection>
-        <developerConnection>scm:git@github.com:hmrc/local-template-resolver.git</developerConnection>
-        <url>git@github.com:hmrc/local-template-resolver.git</url>
+        <connection>scm:git@github.com:hmrc/local-template-renderer.git</connection>
+        <developerConnection>scm:git@github.com:hmrc/local-template-renderer.git</developerConnection>
+        <url>git@github.com:hmrc/local-template-renderer.git</url>
       </scm>
       <developers>
         <developer>

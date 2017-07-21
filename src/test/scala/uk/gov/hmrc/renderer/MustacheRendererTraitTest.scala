@@ -16,21 +16,34 @@
 
 package uk.gov.hmrc.renderer
 
-import akka.actor.ActorSystem
+import java.util.concurrent.{Callable, ConcurrentMap}
+import java.{lang, util}
+
+import akka.util.ByteString
+import com.google.common.cache.{CacheStats, LoadingCache}
+import com.google.common.collect.ImmutableMap
 import org.fusesource.scalate.Template
+import org.scalatest.mock.MockitoSugar
 import org.scalatest.{FlatSpec, Matchers}
 import org.xmlunit.builder.DiffBuilder
 import org.xmlunit.diff.{DefaultNodeMatcher, Diff, ElementSelectors}
+import play.api.libs.json.JsValue
+import play.api.libs.ws.{WSCookie, WSResponse}
 import play.twirl.api.Html
-import uk.gov.hmrc.play.http.HeaderCarrier
-import uk.gov.hmrc.play.http.ws.WSGet
+import uk.gov.hmrc.play.http.{HeaderCarrier, HttpResponse}
+import uk.gov.hmrc.play.http.hooks.HttpHook
+import uk.gov.hmrc.play.http.ws.{WSGet, WSHttpResponse}
 import uk.gov.hmrc.play.test.WithFakeApplication
 
+import scala.concurrent.Future
+import scala.concurrent.duration.Duration
+import scala.concurrent.duration._
 import scala.xml.{Elem, XML}
-/**
-  * Created by mo on 24/04/2017.
-  */
+
+
 class MustacheRendererTraitTest extends FlatSpec with Matchers with WithFakeApplication {
+
+
 
 
   "MustacheRenderer" should "render template" in new Setup {
@@ -73,7 +86,7 @@ class MustacheRendererTraitTest extends FlatSpec with Matchers with WithFakeAppl
         |</body>
         |</html>""".stripMargin
 
-    val result = mustacheRenderer.parseTemplate(
+    val result = mustacheRenderer.renderDefaultTemplate(
       Html("<p>Some Content</p>"),
       Map(
         "pageTitle" -> "first",
@@ -135,7 +148,7 @@ class MustacheRendererTraitTest extends FlatSpec with Matchers with WithFakeAppl
         |</html>""".stripMargin
 
 
-    val result = mustacheRenderer.parseTemplate(
+    val result = mustacheRenderer.renderDefaultTemplate(
       Html("<p>Some Content</p>"),
       Map(
         "head" -> Html("head"),
@@ -154,14 +167,14 @@ class MustacheRendererTraitTest extends FlatSpec with Matchers with WithFakeAppl
     diff.hasDifferences shouldBe false
   }
 
+
+
 }
 
 trait Setup {
   val mustacheRenderer = new MustacheRendererTrait {
-    override lazy val akkaSystem: ActorSystem = ???
-    override lazy val templateServiceAddress: String = ???
-    override lazy val connection: WSGet = ???
-    override def getTemplate: String =
+
+    val bodyToReturn =
       """<html>
         |<head>
         |<title>
@@ -204,6 +217,33 @@ trait Setup {
         |{{{ bodyEnd }}}
         |</body>
         |</html>""".stripMargin
+
+    override val connection: WSGet = new WSGet {
+      override val hooks: Seq[HttpHook] = Seq()
+      override def doGet(url: String)(implicit  hc: HeaderCarrier): Future[HttpResponse] = {
+
+
+        Future.successful(new WSHttpResponse(new WSResponse {
+
+          override def cookie(name: String): Option[WSCookie] = ???
+          override def underlying[T]: T = ???
+          override def body: String = bodyToReturn
+          override def bodyAsBytes: ByteString = ???
+          override def cookies: Seq[WSCookie] = ???
+          override def allHeaders: Map[String, Seq[String]] = ???
+          override def xml: Elem = ???
+          override def statusText: String = ???
+          override def json: JsValue = ???
+          override def header(key: String): Option[String] = ???
+          override def status: Int = 200
+        }))
+      }
+
+    }
+
+    override def templateServiceBaseUrl: String = "http://template.service"
+    override val refreshAfter: Duration = 10 minutes
+
   }
 
 
