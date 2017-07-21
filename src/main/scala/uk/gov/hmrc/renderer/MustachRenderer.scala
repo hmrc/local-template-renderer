@@ -16,56 +16,55 @@
 
 package uk.gov.hmrc.renderer
 
-import akka.actor.{ActorSystem, Cancellable}
+import java.util.concurrent.TimeUnit
+import com.google.common.cache.{CacheBuilder, CacheLoader, LoadingCache}
 import org.fusesource.scalate.{Template, TemplateEngine}
-import play.libs.Akka
 import play.twirl.api.Html
 import uk.gov.hmrc.play.http.HeaderCarrier
 import uk.gov.hmrc.play.http.ws.WSGet
-import uk.gov.hmrc.play.http.logging.MdcLoggingExecutionContext._
-
-import scala.concurrent.{Await, ExecutionContext}
+import scala.concurrent.Await
 import scala.concurrent.duration._
 
-class MustacheRenderer(override val connection: WSGet, override val templateServiceAddress: String) extends MustacheRendererTrait
+
+class MustacheRenderer(
+  override val connection: WSGet,
+  override val templateServiceBaseUrl: String,
+  override val refreshAfter: Duration = 10 minutes
+) extends MustacheRendererTrait
 
 trait MustacheRendererTrait {
 
-  lazy val akkaSystem: ActorSystem = Akka.system()
+  import uk.gov.hmrc.play.http.logging.MdcLoggingExecutionContext._
 
-  val connection: WSGet
+  def connection: WSGet
+  def templateServiceBaseUrl: String
+  def refreshAfter: Duration
 
-  val templateServiceAddress: String
+  val expireAfter: Duration = 60 minutes
+  val maximumEntries: Int = 100
 
-  protected def getTemplate: String = {
-    implicit val hc = HeaderCarrier()
-    Await.result[String](connection.doGet(templateServiceAddress).map(_.body), 10 seconds)
+  protected val templateEngine = new TemplateEngine()
+
+  private implicit val hc = HeaderCarrier()
+
+  lazy val cache: LoadingCache[String, Template] =
+    CacheBuilder.newBuilder()
+      .maximumSize(maximumEntries)
+      .refreshAfterWrite(refreshAfter.toMillis, TimeUnit.MILLISECONDS)
+      .expireAfterWrite(expireAfter.toMillis, TimeUnit.MILLISECONDS)
+      .build(new CacheLoader[String,Template] {
+        override def load(path: String): Template =
+          templateEngine.compileMoustache(Await.result[String](connection.GET(templateServiceBaseUrl + path).map(_.body), 10 seconds))
+      })
+
+
+  private def renderTemplate(path: String)(content: Html, extraArgs: Map[String, Any]): Html = {
+
+    val attributes: Map[String, Any] = Map("article" -> content.body) ++ extraArgs
+    val tpl: Template = cache.get(path)
+
+    Html(templateEngine.layout("outPut.ssp", tpl, attributes))
   }
 
-  protected lazy val templateEngine = new TemplateEngine()
-
-  var mustacheTemplate: Template = _
-
-  updateTemplate(getTemplate)
-
-  //app.injector.instanceOf[ApplicationLifecycle].addStopHook(() => Future(cancellable.cancel()))
-  def scheduleGrabbingTemplate()(implicit ec: ExecutionContext): Cancellable = {
-    akkaSystem.scheduler.schedule(10 milliseconds, 10 minutes) {
-      updateTemplate(getTemplate)
-    }
-  }
-
-  private def updateTemplate(mustacheTemplateString: String) = {
-    mustacheTemplate = templateEngine.compileMoustache(mustacheTemplateString)
-  }
-
-  def parseTemplate(content: Html, extraArgs: Map[String, Any])(implicit hc: HeaderCarrier): Html = {
-
-    val attributes: Map[String, Any] = Map(
-      "article" -> content.body
-    ) ++ extraArgs
-
-    Html(templateEngine.layout("outPut.ssp", mustacheTemplate, attributes))
-
-  }
+  def renderDefaultTemplate = renderTemplate("/frontend-template-provider/serve-template") _
 }
