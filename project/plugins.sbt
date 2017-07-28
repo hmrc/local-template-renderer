@@ -20,8 +20,6 @@ resolvers ++= Seq(
   "Typesafe Releases" at "http://repo.typesafe.com/typesafe/releases/"
 )
 
-addSbtPlugin("uk.gov.hmrc" % "sbt-settings" % "3.2.0")
-
 addSbtPlugin("uk.gov.hmrc" % "sbt-auto-build" % "1.4.0")
 
 addSbtPlugin("uk.gov.hmrc" % "sbt-git-versioning" % "0.9.0")
