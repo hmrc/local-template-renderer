@@ -30,7 +30,7 @@ import org.xmlunit.diff.{DefaultNodeMatcher, Diff, ElementSelectors}
 import play.api.libs.json.JsValue
 import play.api.libs.ws.{WSCookie, WSResponse}
 import play.twirl.api.Html
-import uk.gov.hmrc.play.http.{HeaderCarrier, HttpResponse}
+import uk.gov.hmrc.play.http.{BadGatewayException, HeaderCarrier, HttpResponse}
 import uk.gov.hmrc.play.http.hooks.HttpHook
 import uk.gov.hmrc.play.http.ws.{WSGet, WSHttpResponse}
 import uk.gov.hmrc.play.test.WithFakeApplication
@@ -47,6 +47,7 @@ class MustacheRendererTraitTest extends FlatSpec with Matchers with WithFakeAppl
 
 
   "MustacheRenderer" should "render template" in new Setup {
+    val httpCallSuccess = true
     val expectedOutputHtml =
       """<html>
         |<head>
@@ -102,11 +103,11 @@ class MustacheRendererTraitTest extends FlatSpec with Matchers with WithFakeAppl
     )
 
     val diff = createDiff(expectedOutputHtml, result.toString)
-    println(diff.getDifferences)
     diff.hasDifferences shouldBe false
   }
 
   it should "render a a template using template logic" in new Setup {
+    val httpCallSuccess = true
     val expectedOutputHtml =
       """
         |<html>
@@ -163,80 +164,111 @@ class MustacheRendererTraitTest extends FlatSpec with Matchers with WithFakeAppl
     )
 
     val diff = createDiff(expectedOutputHtml, result.toString)
-    println(diff.getControlSource)
     diff.hasDifferences shouldBe false
   }
 
 
+  it should "Fail if the http call is set to fail and there is no cached template" in new Setup {
+    val httpCallSuccess = false
+
+    override val bodyToReturn =
+      """<html><body>{{{ article }}}</body></html>
+      """.stripMargin
+
+    an[Exception] shouldBe thrownBy {
+      mustacheRenderer.renderDefaultTemplate(Html("<p>Some Content</p>"), Map.empty)
+    }
+  }
+
+
+  it should "Not fail if the http call is set to fail and there is a cached template" in new Setup {
+    var httpCallSuccess = true
+
+    override val bodyToReturn =
+      """<html><body>{{{ article }}}</body></html>
+      """.stripMargin
+
+    mustacheRenderer.renderDefaultTemplate(Html("<p>Some Content</p>"), Map.empty)
+
+    httpCallSuccess = false
+
+    mustacheRenderer.renderDefaultTemplate(Html("<p>Some Content</p>"), Map.empty)
+  }
 
 }
 
 trait Setup {
-  val mustacheRenderer = new MustacheRendererTrait {
 
-    val bodyToReturn =
-      """<html>
-        |<head>
-        |<title>
-        |{{#pageTitle}}
-        |{{ pageTitle }}
-        |{{/pageTitle}}
-        |{{^pageTitle}}
-        |GOV.UK - The best place to find government services and information
-        |{{/pageTitle}}
-        |</title>
-        |
-        |{{{ head }}}
-        |</head>
-        |
-        |<body class="{{{ bodyClasses }}}">
-        |
-        |<header role="banner" id="global-header" class="{{#nav}}with-proposition{{/nav}}">
-        |    <div>
-        |
-        |        {{{ insideHeader }}}
-        |
-        |    </div>
-        |</header>
-        |
-        |
-        |{{{ afterHeader }}}
-        |
-        |{{{ article }}}
-        |
-        |<footer>
-        |
-        |    <div>
-        |        {{{ footerTop }}}
-        |        <div>
-        |            {{{ footerLinks }}}
-        |        </div>
-        |    </div>
-        |</footer>
-        |
-        |{{{ bodyEnd }}}
-        |</body>
-        |</html>""".stripMargin
+  def httpCallSuccess: Boolean
+
+  val bodyToReturn =
+    """<html>
+      |<head>
+      |<title>
+      |{{#pageTitle}}
+      |{{ pageTitle }}
+      |{{/pageTitle}}
+      |{{^pageTitle}}
+      |GOV.UK - The best place to find government services and information
+      |{{/pageTitle}}
+      |</title>
+      |
+      |{{{ head }}}
+      |</head>
+      |
+      |<body class="{{{ bodyClasses }}}">
+      |
+      |<header role="banner" id="global-header" class="{{#nav}}with-proposition{{/nav}}">
+      |    <div>
+      |
+      |        {{{ insideHeader }}}
+      |
+      |    </div>
+      |</header>
+      |
+      |
+      |{{{ afterHeader }}}
+      |
+      |{{{ article }}}
+      |
+      |<footer>
+      |
+      |    <div>
+      |        {{{ footerTop }}}
+      |        <div>
+      |            {{{ footerLinks }}}
+      |        </div>
+      |    </div>
+      |</footer>
+      |
+      |{{{ bodyEnd }}}
+      |</body>
+      |</html>""".stripMargin
+
+  val mustacheRenderer = new MustacheRendererTrait {
 
     override val connection: WSGet = new WSGet {
       override val hooks: Seq[HttpHook] = Seq()
       override def doGet(url: String)(implicit  hc: HeaderCarrier): Future[HttpResponse] = {
 
-
-        Future.successful(new WSHttpResponse(new WSResponse {
-
-          override def cookie(name: String): Option[WSCookie] = ???
-          override def underlying[T]: T = ???
-          override def body: String = bodyToReturn
-          override def bodyAsBytes: ByteString = ???
-          override def cookies: Seq[WSCookie] = ???
-          override def allHeaders: Map[String, Seq[String]] = ???
-          override def xml: Elem = ???
-          override def statusText: String = ???
-          override def json: JsValue = ???
-          override def header(key: String): Option[String] = ???
-          override def status: Int = 200
-        }))
+        if(httpCallSuccess) {
+          Future.successful(new WSHttpResponse(new WSResponse {
+            override def cookie(name: String): Option[WSCookie] = ???
+            override def underlying[T]: T = ???
+            override def body: String = bodyToReturn
+            override def bodyAsBytes: ByteString = ???
+            override def cookies: Seq[WSCookie] = ???
+            override def allHeaders: Map[String, Seq[String]] = ???
+            override def xml: Elem = ???
+            override def statusText: String = ???
+            override def json: JsValue = ???
+            override def header(key: String): Option[String] = ???
+            override def status: Int = 200
+          }))
+        }
+        else {
+          Future.failed(new BadGatewayException("Bad Gateway"))
+        }
       }
 
     }
