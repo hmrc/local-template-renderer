@@ -66,5 +66,5 @@ trait MustacheRendererTrait {
     Html(templateEngine.layout("outPut.ssp", tpl, attributes))
   }
 
-  def renderDefaultTemplate = renderTemplate("/frontend-template-provider/serve-template") _
+  def renderDefaultTemplate = renderTemplate("/template/mustache") _
 }
