@@ -26,13 +26,7 @@ import scala.concurrent.Await
 import scala.concurrent.duration._
 
 
-class MustacheRenderer(
-  override val connection: WSGet,
-  override val templateServiceBaseUrl: String,
-  override val refreshAfter: Duration = 10 minutes
-) extends MustacheRendererTrait
-
-trait MustacheRendererTrait {
+trait TemplateRenderer {
 
   import uk.gov.hmrc.play.http.logging.MdcLoggingExecutionContext._
 
