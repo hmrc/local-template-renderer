@@ -41,7 +41,7 @@ import scala.concurrent.duration._
 import scala.xml.{Elem, XML}
 
 
-class MustacheRendererTraitTest extends FlatSpec with Matchers with WithFakeApplication {
+class TemplateRendererTest extends FlatSpec with Matchers with WithFakeApplication {
 
 
 
@@ -245,7 +245,7 @@ trait Setup {
       |</body>
       |</html>""".stripMargin
 
-  val mustacheRenderer = new MustacheRendererTrait {
+  val mustacheRenderer = new TemplateRenderer {
 
     override val connection: WSGet = new WSGet {
       override val hooks: Seq[HttpHook] = Seq()
