@@ -17,11 +17,15 @@
 package uk.gov.hmrc.renderer
 
 import java.util.concurrent.TimeUnit
+
 import com.google.common.cache.{CacheBuilder, CacheLoader, LoadingCache}
 import org.fusesource.scalate.{Template, TemplateEngine}
+import play.api.Logger
+import play.api.i18n.{Lang, Messages}
 import play.twirl.api.Html
 import uk.gov.hmrc.play.http.HeaderCarrier
 import uk.gov.hmrc.play.http.ws.WSGet
+
 import scala.concurrent.Await
 import scala.concurrent.duration._
 
@@ -52,13 +56,15 @@ trait TemplateRenderer {
       })
 
 
-  private def renderTemplate(path: String)(content: Html, extraArgs: Map[String, Any]): Html = {
+  private def renderTemplate(path: String)(content: Html, extraArgs: Map[String, Any])(implicit messages: Messages): Html = {
 
-    val attributes: Map[String, Any] = Map("article" -> content.body) ++ extraArgs
+    val isWelsh = messages.lang.code.take(2)=="cy"
+
+    val attributes: Map[String, Any] = Map("article" -> content.body, "isWelsh" -> isWelsh) ++ extraArgs
     val tpl: Template = cache.get(path)
 
     Html(templateEngine.layout("outPut.ssp", tpl, attributes))
   }
 
-  def renderDefaultTemplate = renderTemplate("/template/mustache") _
+  def renderDefaultTemplate(content: Html, extraArgs: Map[String, Any])(implicit messages: Messages) = renderTemplate("/template/mustache")(content, extraArgs)(messages)
 }

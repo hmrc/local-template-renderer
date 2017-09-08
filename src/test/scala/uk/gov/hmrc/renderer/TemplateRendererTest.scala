@@ -16,35 +16,122 @@
 
 package uk.gov.hmrc.renderer
 
-import java.util.concurrent.{Callable, ConcurrentMap}
-import java.{lang, util}
-
 import akka.util.ByteString
-import com.google.common.cache.{CacheStats, LoadingCache}
-import com.google.common.collect.ImmutableMap
-import org.fusesource.scalate.Template
-import org.scalatest.mock.MockitoSugar
 import org.scalatest.{FlatSpec, Matchers}
 import org.xmlunit.builder.DiffBuilder
 import org.xmlunit.diff.{DefaultNodeMatcher, Diff, ElementSelectors}
+import play.api.i18n.{Lang, Messages}
 import play.api.libs.json.JsValue
 import play.api.libs.ws.{WSCookie, WSResponse}
+import play.api.i18n.MessagesApi
 import play.twirl.api.Html
-import uk.gov.hmrc.play.http.{BadGatewayException, HeaderCarrier, HttpResponse}
 import uk.gov.hmrc.play.http.hooks.HttpHook
 import uk.gov.hmrc.play.http.ws.{WSGet, WSHttpResponse}
+import uk.gov.hmrc.play.http.{BadGatewayException, HeaderCarrier, HttpResponse}
 import uk.gov.hmrc.play.test.WithFakeApplication
 
 import scala.concurrent.Future
-import scala.concurrent.duration.Duration
-import scala.concurrent.duration._
+import scala.concurrent.duration.{Duration, _}
 import scala.xml.{Elem, XML}
 
 
 class TemplateRendererTest extends FlatSpec with Matchers with WithFakeApplication {
 
+  implicit val m: Messages = new Messages(Lang("en"), fakeApplication.injector.instanceOf[MessagesApi])
+
+  trait Setup {
+
+    def httpCallSuccess: Boolean
+
+    val bodyToReturn =
+      """<html>
+        |<head>
+        |<title>
+        |{{#pageTitle}}
+        |{{ pageTitle }}
+        |{{/pageTitle}}
+        |{{^pageTitle}}
+        |GOV.UK - The best place to find government services and information
+        |{{/pageTitle}}
+        |</title>
+        |
+        |{{{ head }}}
+        |</head>
+        |
+        |<body class="{{{ bodyClasses }}}">
+        |
+        |<header role="banner" id="global-header" class="{{#nav}}with-proposition{{/nav}}">
+        |    <div>
+        |
+        |        {{{ insideHeader }}}
+        |
+        |    </div>
+        |</header>
+        |
+        |
+        |{{{ afterHeader }}}
+        |
+        |{{{ article }}}
+        |
+        |<footer>
+        |
+        |    <div>
+        |        {{{ footerTop }}}
+        |        <div>
+        |            {{{ footerLinks }}}
+        |        </div>
+        |    </div>
+        |</footer>
+        |
+        |{{{ bodyEnd }}}
+        |</body>
+        |</html>""".stripMargin
+
+    val mustacheRenderer = new TemplateRenderer {
+
+      override val connection: WSGet = new WSGet {
+        override val hooks: Seq[HttpHook] = Seq()
+        override def doGet(url: String)(implicit  hc: HeaderCarrier): Future[HttpResponse] = {
+
+          if(httpCallSuccess) {
+            Future.successful(new WSHttpResponse(new WSResponse {
+              override def cookie(name: String): Option[WSCookie] = ???
+              override def underlying[T]: T = ???
+              override def body: String = bodyToReturn
+              override def bodyAsBytes: ByteString = ???
+              override def cookies: Seq[WSCookie] = ???
+              override def allHeaders: Map[String, Seq[String]] = ???
+              override def xml: Elem = ???
+              override def statusText: String = ???
+              override def json: JsValue = ???
+              override def header(key: String): Option[String] = ???
+              override def status: Int = 200
+            }))
+          }
+          else {
+            Future.failed(new BadGatewayException("Bad Gateway"))
+          }
+        }
+
+      }
+
+      override def templateServiceBaseUrl: String = "http://template.service"
+      override val refreshAfter: Duration = 10 minutes
+
+    }
 
 
+    def createDiff(expectedHtml: String, resultHtml: String): Diff = {
+      DiffBuilder.compare(expectedHtml)
+        .withTest(resultHtml)
+        .withNodeMatcher(new DefaultNodeMatcher(ElementSelectors.byNameAndText))
+        .build()
+    }
+
+    def xhtmlFromString(htmlString: String): Elem = XML.loadString(htmlString)
+
+    implicit val hc: HeaderCarrier = HeaderCarrier()
+  }
 
   "MustacheRenderer" should "render template" in new Setup {
     val httpCallSuccess = true
@@ -197,96 +284,4 @@ class TemplateRendererTest extends FlatSpec with Matchers with WithFakeApplicati
 
 }
 
-trait Setup {
 
-  def httpCallSuccess: Boolean
-
-  val bodyToReturn =
-    """<html>
-      |<head>
-      |<title>
-      |{{#pageTitle}}
-      |{{ pageTitle }}
-      |{{/pageTitle}}
-      |{{^pageTitle}}
-      |GOV.UK - The best place to find government services and information
-      |{{/pageTitle}}
-      |</title>
-      |
-      |{{{ head }}}
-      |</head>
-      |
-      |<body class="{{{ bodyClasses }}}">
-      |
-      |<header role="banner" id="global-header" class="{{#nav}}with-proposition{{/nav}}">
-      |    <div>
-      |
-      |        {{{ insideHeader }}}
-      |
-      |    </div>
-      |</header>
-      |
-      |
-      |{{{ afterHeader }}}
-      |
-      |{{{ article }}}
-      |
-      |<footer>
-      |
-      |    <div>
-      |        {{{ footerTop }}}
-      |        <div>
-      |            {{{ footerLinks }}}
-      |        </div>
-      |    </div>
-      |</footer>
-      |
-      |{{{ bodyEnd }}}
-      |</body>
-      |</html>""".stripMargin
-
-  val mustacheRenderer = new TemplateRenderer {
-
-    override val connection: WSGet = new WSGet {
-      override val hooks: Seq[HttpHook] = Seq()
-      override def doGet(url: String)(implicit  hc: HeaderCarrier): Future[HttpResponse] = {
-
-        if(httpCallSuccess) {
-          Future.successful(new WSHttpResponse(new WSResponse {
-            override def cookie(name: String): Option[WSCookie] = ???
-            override def underlying[T]: T = ???
-            override def body: String = bodyToReturn
-            override def bodyAsBytes: ByteString = ???
-            override def cookies: Seq[WSCookie] = ???
-            override def allHeaders: Map[String, Seq[String]] = ???
-            override def xml: Elem = ???
-            override def statusText: String = ???
-            override def json: JsValue = ???
-            override def header(key: String): Option[String] = ???
-            override def status: Int = 200
-          }))
-        }
-        else {
-          Future.failed(new BadGatewayException("Bad Gateway"))
-        }
-      }
-
-    }
-
-    override def templateServiceBaseUrl: String = "http://template.service"
-    override val refreshAfter: Duration = 10 minutes
-
-  }
-
-
-  def createDiff(expectedHtml: String, resultHtml: String): Diff = {
-    DiffBuilder.compare(expectedHtml)
-      .withTest(resultHtml)
-      .withNodeMatcher(new DefaultNodeMatcher(ElementSelectors.byNameAndText))
-      .build()
-  }
-
-  def xhtmlFromString(htmlString: String): Elem = XML.loadString(htmlString)
-
-  implicit val hc: HeaderCarrier = HeaderCarrier()
-}
