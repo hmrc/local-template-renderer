@@ -23,19 +23,15 @@ import com.github.mustachejava.{DefaultMustacheFactory, Mustache}
 import com.google.common.cache.{CacheBuilder, CacheLoader, LoadingCache}
 import play.api.i18n.Messages
 import play.twirl.api.Html
-import uk.gov.hmrc.play.http.HeaderCarrier
-import uk.gov.hmrc.play.http.ws.WSGet
 
 import scala.collection.JavaConversions._
-import scala.concurrent.Await
+import scala.concurrent.{Await, Future}
 import scala.concurrent.duration._
 
 
 trait TemplateRenderer {
 
-  import uk.gov.hmrc.play.http.logging.MdcLoggingExecutionContext._
-
-  def connection: WSGet
+  def fetchTemplate(path: String): Future[String]
   def templateServiceBaseUrl: String
   def refreshAfter: Duration
 
@@ -48,8 +44,6 @@ trait TemplateRenderer {
     mf
   }
 
-  private implicit val hc = HeaderCarrier()
-
   lazy val cache: LoadingCache[String, Mustache] =
     CacheBuilder.newBuilder()
       .maximumSize(maximumEntries)
@@ -57,7 +51,7 @@ trait TemplateRenderer {
       .expireAfterWrite(expireAfter.toMillis, TimeUnit.MILLISECONDS)
       .build(new CacheLoader[String,Mustache] {
         override def load(path: String): Mustache = {
-          val reader = new StringReader(Await.result[String](connection.GET(templateServiceBaseUrl + path).map(_.body), 10 seconds))
+          val reader = new StringReader(Await.result[String](fetchTemplate(templateServiceBaseUrl + path), 10 seconds))
           mustacheFactory.compile(reader, "template")
         }
       })

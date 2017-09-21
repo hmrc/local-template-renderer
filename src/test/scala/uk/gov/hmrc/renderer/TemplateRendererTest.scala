@@ -18,14 +18,9 @@ package uk.gov.hmrc.renderer
 
 import akka.util.ByteString
 import org.scalatest.{FlatSpec, Matchers}
-import play.api.i18n.{Lang, Messages}
+import play.api.i18n.{Lang, Messages, MessagesApi}
 import play.api.libs.json.JsValue
-import play.api.libs.ws.{WSCookie, WSResponse}
-import play.api.i18n.MessagesApi
 import play.twirl.api.Html
-import uk.gov.hmrc.play.http.hooks.HttpHook
-import uk.gov.hmrc.play.http.ws.{WSGet, WSHttpResponse}
-import uk.gov.hmrc.play.http.{BadGatewayException, HeaderCarrier, HttpResponse}
 import uk.gov.hmrc.play.test.WithFakeApplication
 
 import scala.concurrent.Future
@@ -87,40 +82,17 @@ class TemplateRendererTest extends FlatSpec with Matchers with WithFakeApplicati
 
     val templateRenderer = new TemplateRenderer {
 
-      override val connection: WSGet = new WSGet {
-        override val hooks: Seq[HttpHook] = Seq()
-        override def doGet(url: String)(implicit  hc: HeaderCarrier): Future[HttpResponse] = {
-
-          if(httpCallSuccess) {
-            Future.successful(new WSHttpResponse(new WSResponse {
-              override def cookie(name: String): Option[WSCookie] = ???
-              override def underlying[T]: T = ???
-              override def body: String = bodyToReturn
-              override def bodyAsBytes: ByteString = ???
-              override def cookies: Seq[WSCookie] = ???
-              override def allHeaders: Map[String, Seq[String]] = ???
-              override def xml: Elem = ???
-              override def statusText: String = ???
-              override def json: JsValue = ???
-              override def header(key: String): Option[String] = ???
-              override def status: Int = 200
-            }))
-          }
-          else {
-            Future.failed(new BadGatewayException("Bad Gateway"))
-          }
-        }
-
-      }
-
       override def templateServiceBaseUrl: String = "http://template.service"
       override val refreshAfter: Duration = 10 minutes
 
+      override def fetchTemplate(path: String): Future[String] = {
+        if(httpCallSuccess) Future.successful(bodyToReturn)
+        else Future.failed(new RuntimeException("Bad Gateway"))
+      }
+      
     }
 
     def xhtmlFromString(htmlString: String): Elem = XML.loadString(htmlString)
-
-    implicit val hc: HeaderCarrier = HeaderCarrier()
   }
 
   "TemplateRenderer" should "render template" in new TemplateSetup {
