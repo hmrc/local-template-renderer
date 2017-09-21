@@ -16,16 +16,17 @@
 
 package uk.gov.hmrc.renderer
 
+import java.io.{StringReader, StringWriter}
 import java.util.concurrent.TimeUnit
 
+import com.github.mustachejava.{DefaultMustacheFactory, Mustache}
 import com.google.common.cache.{CacheBuilder, CacheLoader, LoadingCache}
-import org.fusesource.scalate.{Template, TemplateEngine}
-import play.api.Logger
-import play.api.i18n.{Lang, Messages}
+import play.api.i18n.Messages
 import play.twirl.api.Html
 import uk.gov.hmrc.play.http.HeaderCarrier
 import uk.gov.hmrc.play.http.ws.WSGet
 
+import scala.collection.JavaConversions._
 import scala.concurrent.Await
 import scala.concurrent.duration._
 
@@ -41,29 +42,38 @@ trait TemplateRenderer {
   val expireAfter: Duration = 60 minutes
   val maximumEntries: Int = 100
 
-  protected val templateEngine = new TemplateEngine()
+  protected val mustacheFactory = {
+    val mf = new DefaultMustacheFactory()
+    mf.setObjectHandler(new com.twitter.mustache.ScalaObjectHandler)
+    mf
+  }
 
   private implicit val hc = HeaderCarrier()
 
-  lazy val cache: LoadingCache[String, Template] =
+  lazy val cache: LoadingCache[String, Mustache] =
     CacheBuilder.newBuilder()
       .maximumSize(maximumEntries)
       .refreshAfterWrite(refreshAfter.toMillis, TimeUnit.MILLISECONDS)
       .expireAfterWrite(expireAfter.toMillis, TimeUnit.MILLISECONDS)
-      .build(new CacheLoader[String,Template] {
-        override def load(path: String): Template =
-          templateEngine.compileMoustache(Await.result[String](connection.GET(templateServiceBaseUrl + path).map(_.body), 10 seconds))
+      .build(new CacheLoader[String,Mustache] {
+        override def load(path: String): Mustache = {
+          val reader = new StringReader(Await.result[String](connection.GET(templateServiceBaseUrl + path).map(_.body), 10 seconds))
+          mustacheFactory.compile(reader, "template")
+        }
       })
-
 
   private def renderTemplate(path: String)(content: Html, extraArgs: Map[String, Any])(implicit messages: Messages): Html = {
 
     val isWelsh = messages.lang.code.take(2)=="cy"
 
-    val attributes: Map[String, Any] = Map("article" -> content.body, "isWelsh" -> isWelsh) ++ extraArgs
-    val tpl: Template = cache.get(path)
+    val attributes: java.util.Map[String, Any] = Map("article" -> content.body, "isWelsh" -> isWelsh) ++ extraArgs
+    val m: Mustache = cache.get(path)
 
-    Html(templateEngine.layout("outPut.ssp", tpl, attributes))
+    val sw = new StringWriter()
+    m.execute(sw, attributes)
+    sw.flush()
+
+    Html(sw.toString)
   }
 
   def renderDefaultTemplate(content: Html, extraArgs: Map[String, Any])(implicit messages: Messages) = renderTemplate("/template/mustache")(content, extraArgs)(messages)

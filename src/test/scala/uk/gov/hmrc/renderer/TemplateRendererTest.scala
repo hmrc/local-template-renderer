@@ -18,8 +18,6 @@ package uk.gov.hmrc.renderer
 
 import akka.util.ByteString
 import org.scalatest.{FlatSpec, Matchers}
-import org.xmlunit.builder.DiffBuilder
-import org.xmlunit.diff.{DefaultNodeMatcher, Diff, ElementSelectors}
 import play.api.i18n.{Lang, Messages}
 import play.api.libs.json.JsValue
 import play.api.libs.ws.{WSCookie, WSResponse}
@@ -39,7 +37,7 @@ class TemplateRendererTest extends FlatSpec with Matchers with WithFakeApplicati
 
   implicit val m: Messages = new Messages(Lang("en"), fakeApplication.injector.instanceOf[MessagesApi])
 
-  trait Setup {
+  trait TemplateSetup {
 
     def httpCallSuccess: Boolean
 
@@ -87,7 +85,7 @@ class TemplateRendererTest extends FlatSpec with Matchers with WithFakeApplicati
         |</body>
         |</html>""".stripMargin
 
-    val mustacheRenderer = new TemplateRenderer {
+    val templateRenderer = new TemplateRenderer {
 
       override val connection: WSGet = new WSGet {
         override val hooks: Seq[HttpHook] = Seq()
@@ -120,20 +118,12 @@ class TemplateRendererTest extends FlatSpec with Matchers with WithFakeApplicati
 
     }
 
-
-    def createDiff(expectedHtml: String, resultHtml: String): Diff = {
-      DiffBuilder.compare(expectedHtml)
-        .withTest(resultHtml)
-        .withNodeMatcher(new DefaultNodeMatcher(ElementSelectors.byNameAndText))
-        .build()
-    }
-
     def xhtmlFromString(htmlString: String): Elem = XML.loadString(htmlString)
 
     implicit val hc: HeaderCarrier = HeaderCarrier()
   }
 
-  "MustacheRenderer" should "render template" in new Setup {
+  "TemplateRenderer" should "render template" in new TemplateSetup {
     val httpCallSuccess = true
     val expectedOutputHtml =
       """<html>
@@ -174,7 +164,7 @@ class TemplateRendererTest extends FlatSpec with Matchers with WithFakeApplicati
         |</body>
         |</html>""".stripMargin
 
-    val result = mustacheRenderer.renderDefaultTemplate(
+    val result = templateRenderer.renderDefaultTemplate(
       Html("<p>Some Content</p>"),
       Map(
         "pageTitle" -> "first",
@@ -182,22 +172,21 @@ class TemplateRendererTest extends FlatSpec with Matchers with WithFakeApplicati
         "bodyClasses" -> "classes",
         "bodyEnd" -> Html("End of body"),
         "nav" -> true,
-        "insideHeader" -> Html("insideStory"),
+        "insideHeader" -> "insideStory",
         "afterHeader" ->  Html("<div>AfterParty</div>"),
         "footerTop" -> Html("Top footer"),
         "footerLinks" -> Some(Html("Footer Links"))
       )
     )
 
-    val diff = createDiff(expectedOutputHtml, result.toString)
-    diff.hasDifferences shouldBe false
+    result.toString() shouldBe expectedOutputHtml
+
   }
 
-  it should "render a a template using template logic" in new Setup {
+  it should "render a a template using template logic" in new TemplateSetup {
     val httpCallSuccess = true
     val expectedOutputHtml =
-      """
-        |<html>
+      """<html>
         |<head>
         |<title>
         |GOV.UK - The best place to find government services and information
@@ -236,7 +225,7 @@ class TemplateRendererTest extends FlatSpec with Matchers with WithFakeApplicati
         |</html>""".stripMargin
 
 
-    val result = mustacheRenderer.renderDefaultTemplate(
+    val result = templateRenderer.renderDefaultTemplate(
       Html("<p>Some Content</p>"),
       Map(
         "head" -> Html("head"),
@@ -250,12 +239,12 @@ class TemplateRendererTest extends FlatSpec with Matchers with WithFakeApplicati
       )
     )
 
-    val diff = createDiff(expectedOutputHtml, result.toString)
-    diff.hasDifferences shouldBe false
+    result.toString() shouldBe expectedOutputHtml
+
   }
 
 
-  it should "Fail if the http call is set to fail and there is no cached template" in new Setup {
+  it should "Fail if the http call is set to fail and there is no cached template" in new TemplateSetup {
     val httpCallSuccess = false
 
     override val bodyToReturn =
@@ -263,23 +252,23 @@ class TemplateRendererTest extends FlatSpec with Matchers with WithFakeApplicati
       """.stripMargin
 
     an[Exception] shouldBe thrownBy {
-      mustacheRenderer.renderDefaultTemplate(Html("<p>Some Content</p>"), Map.empty)
+      templateRenderer.renderDefaultTemplate(Html("<p>Some Content</p>"), Map.empty)
     }
   }
 
 
-  it should "Not fail if the http call is set to fail and there is a cached template" in new Setup {
+  it should "Not fail if the http call is set to fail and there is a cached template" in new TemplateSetup {
     var httpCallSuccess = true
 
     override val bodyToReturn =
       """<html><body>{{{ article }}}</body></html>
       """.stripMargin
 
-    mustacheRenderer.renderDefaultTemplate(Html("<p>Some Content</p>"), Map.empty)
+    templateRenderer.renderDefaultTemplate(Html("<p>Some Content</p>"), Map.empty)
 
     httpCallSuccess = false
 
-    mustacheRenderer.renderDefaultTemplate(Html("<p>Some Content</p>"), Map.empty)
+    templateRenderer.renderDefaultTemplate(Html("<p>Some Content</p>"), Map.empty)
   }
 
 }
