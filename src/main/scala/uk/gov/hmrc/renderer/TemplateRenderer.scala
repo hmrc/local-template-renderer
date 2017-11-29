@@ -28,7 +28,6 @@ import scala.collection.JavaConversions._
 import scala.concurrent.{Await, Future}
 import scala.concurrent.duration._
 
-
 trait TemplateRenderer {
 
   def fetchTemplate(path: String): Future[String]
@@ -69,6 +68,8 @@ trait TemplateRenderer {
 
     Html(sw.toString)
   }
+  
+  def renderDefaultTemplate(content: Html, extraArgs: Map[String, Any])(implicit messages: Messages) =
+    renderTemplate("/template/mustache")(content, extraArgs)(messages)
 
-  def renderDefaultTemplate(content: Html, extraArgs: Map[String, Any])(implicit messages: Messages) = renderTemplate("/template/mustache")(content, extraArgs)(messages)
 }
