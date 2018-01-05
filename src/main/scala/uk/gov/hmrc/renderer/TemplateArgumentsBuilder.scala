@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 HM Revenue & Customs
+ * Copyright 2018 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -42,7 +42,10 @@ object TemplateArgumentsBuilder {
   case class InlineScriptComponent(script: String) extends TemplateComponent
   case class SsoUrlComponent(url: String) extends TemplateComponent
   case class GetHelpFormComponent(html: Html) extends TemplateComponent
-  case class BackLinkUrlComponent(url: String) extends TemplateComponent
+  case class BackLinkUrlComponent(
+    url: String,
+    text: Option[String]
+  ) extends TemplateComponent
   case class MainContentHeaderComponent(html: Html) extends TemplateComponent
   case class ActingAttorneyBannerComponent(html: Html) extends TemplateComponent
   case class UserPropertiesComponent(isGovernmentGateway: Boolean, isVerify: Boolean, isSa: Boolean) extends TemplateComponent
@@ -154,7 +157,8 @@ object TemplateArgumentsBuilder {
 
     def addingBackLinkUrl(arguments: Map[String,Any], backLinkUrlComponent: BackLinkUrlComponent) = {
       arguments ++ Map(
-        "backlinkUrl" -> backLinkUrlComponent.url
+        "backlinkUrl" -> backLinkUrlComponent.url,
+        "backlinkUrlText" -> backLinkUrlComponent.text
       )
     }
 
