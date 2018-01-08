@@ -44,7 +44,7 @@ object TemplateArgumentsBuilder {
   case class GetHelpFormComponent(html: Html) extends TemplateComponent
   case class BackLinkUrlComponent(
     url: String,
-    text: Option[String]
+    text: Option[String] = None
   ) extends TemplateComponent
   case class MainContentHeaderComponent(html: Html) extends TemplateComponent
   case class ActingAttorneyBannerComponent(html: Html) extends TemplateComponent
