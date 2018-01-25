@@ -35,6 +35,11 @@ object TemplateArgumentsBuilder {
   ) extends StyleComponent
   case class TraditionalStyleComponent(signoutUrl: Option[String] = None) extends StyleComponent
 
+  case class MessagesMenuItemComponent(unreadMessageCount: Option[Int]) extends TemplateComponent {
+    def unreadMessageCountString = unreadMessageCount.flatMap { umc =>
+      if (umc == 0) None else if (umc < 100) Some(umc.toString) else Some("99+")
+    }
+  }
   case class CssLinksComponent(elements: CssLinkElement*) extends TemplateComponent
   case class ScriptsComponent(urls: String*) extends TemplateComponent
   case class PageTitleComponent(title: String) extends TemplateComponent
@@ -81,6 +86,12 @@ object TemplateArgumentsBuilder {
             case None => false
           }
         }
+      )
+    }
+
+    def addingMessagesMenuItem(arguments: Map[String,Any], component: MessagesMenuItemComponent) = {
+      arguments ++ Map(
+        "unreadMessageCount" -> component.unreadMessageCountString
       )
     }
 
@@ -211,6 +222,7 @@ object TemplateArgumentsBuilder {
           case c: ActingAttorneyBannerComponent  => addingActingAttorneyBanner(arguments, c)
           case c: NavTitleComponent              => addingNavTitle(arguments, c)
           case c: BetaBannerComponent            => addingBetaBanner(arguments, c)
+          case c: MessagesMenuItemComponent      => addingMessagesMenuItem(arguments, c)
         })
     }
 
