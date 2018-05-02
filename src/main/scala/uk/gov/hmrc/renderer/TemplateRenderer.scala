@@ -34,10 +34,10 @@ trait TemplateRenderer {
   def templateServiceBaseUrl: String
   def refreshAfter: Duration
 
-  val expireAfter: Duration = 60 minutes
+  val expireAfter: Duration = 7 days
   val maximumEntries: Int = 100
 
-  protected val mustacheFactory = {
+  protected val mustacheFactory: DefaultMustacheFactory = {
     val mf = new DefaultMustacheFactory()
     mf.setObjectHandler(new com.twitter.mustache.ScalaObjectHandler)
     mf
@@ -69,7 +69,6 @@ trait TemplateRenderer {
     Html(sw.toString)
   }
   
-  def renderDefaultTemplate(content: Html, extraArgs: Map[String, Any])(implicit messages: Messages) =
+  def renderDefaultTemplate(content: Html, extraArgs: Map[String, Any])(implicit messages: Messages): Html =
     renderTemplate("/template/mustache")(content, extraArgs)(messages)
-
 }
