@@ -16,10 +16,8 @@
 
 package uk.gov.hmrc.renderer
 
-import akka.util.ByteString
 import org.scalatest.{FlatSpec, Matchers}
 import play.api.i18n.{Lang, Messages, MessagesApi}
-import play.api.libs.json.JsValue
 import play.twirl.api.Html
 import uk.gov.hmrc.play.test.WithFakeApplication
 
@@ -241,6 +239,14 @@ class TemplateRendererTest extends FlatSpec with Matchers with WithFakeApplicati
     httpCallSuccess = false
 
     templateRenderer.renderDefaultTemplate(Html("<p>Some Content</p>"), Map.empty)
+  }
+
+  it should "expire after no less than 7 days" in new TemplateSetup {
+    val httpCallSuccess: Boolean = true
+
+    val expiryTime: Duration = templateRenderer.expireAfter
+
+    expiryTime.compare(7 days) >= 0 shouldBe true
   }
 
 }
