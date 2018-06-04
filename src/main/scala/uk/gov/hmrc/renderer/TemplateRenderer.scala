@@ -68,7 +68,7 @@ trait TemplateRenderer {
 
     Html(sw.toString)
   }
-  
-  def renderDefaultTemplate(content: Html, extraArgs: Map[String, Any])(implicit messages: Messages): Html =
-    renderTemplate("/template/mustache")(content, extraArgs)(messages)
+
+  def renderDefaultTemplate(path: String, content: Html, extraArgs: Map[String, Any])(implicit messages: Messages): Html =
+    renderTemplate(path)(content, extraArgs)(messages)
 }
