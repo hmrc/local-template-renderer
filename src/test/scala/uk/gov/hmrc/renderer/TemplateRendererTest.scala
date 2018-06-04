@@ -135,6 +135,7 @@ class TemplateRendererTest extends FlatSpec with Matchers with WithFakeApplicati
         |</html>""".stripMargin
 
     val result = templateRenderer.renderDefaultTemplate(
+      "",
       Html("<p>Some Content</p>"),
       Map(
         "pageTitle" -> "first",
@@ -196,6 +197,7 @@ class TemplateRendererTest extends FlatSpec with Matchers with WithFakeApplicati
 
 
     val result = templateRenderer.renderDefaultTemplate(
+      "",
       Html("<p>Some Content</p>"),
       Map(
         "head" -> Html("head"),
@@ -222,7 +224,7 @@ class TemplateRendererTest extends FlatSpec with Matchers with WithFakeApplicati
       """.stripMargin
 
     an[Exception] shouldBe thrownBy {
-      templateRenderer.renderDefaultTemplate(Html("<p>Some Content</p>"), Map.empty)
+      templateRenderer.renderDefaultTemplate("", Html("<p>Some Content</p>"), Map.empty)
     }
   }
 
@@ -234,11 +236,11 @@ class TemplateRendererTest extends FlatSpec with Matchers with WithFakeApplicati
       """<html><body>{{{ article }}}</body></html>
       """.stripMargin
 
-    templateRenderer.renderDefaultTemplate(Html("<p>Some Content</p>"), Map.empty)
+    templateRenderer.renderDefaultTemplate("", Html("<p>Some Content</p>"), Map.empty)
 
     httpCallSuccess = false
 
-    templateRenderer.renderDefaultTemplate(Html("<p>Some Content</p>"), Map.empty)
+    templateRenderer.renderDefaultTemplate("", Html("<p>Some Content</p>"), Map.empty)
   }
 
   it should "expire after no less than 7 days" in new TemplateSetup {
