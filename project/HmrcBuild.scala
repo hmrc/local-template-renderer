@@ -23,14 +23,19 @@ object HmrcBuild extends Build {
   import uk.gov.hmrc.DefaultBuildSettings._
   import uk.gov.hmrc.SbtAutoBuildPlugin
   import uk.gov.hmrc.versioning.SbtGitVersioning
+  import uk.gov.hmrc.SbtArtifactory
+  import uk.gov.hmrc.versioning.SbtGitVersioning.autoImport.majorVersion
+  import uk.gov.hmrc.SbtArtifactory.autoImport.makePublicallyAvailableOnBintray
 
   val appName = "local-template-renderer"
 
 
   lazy val microservice = Project(appName, file("."))
-    .enablePlugins(SbtAutoBuildPlugin, SbtGitVersioning)
+    .enablePlugins(SbtAutoBuildPlugin, SbtGitVersioning, SbtArtifactory)
     .settings(scalaSettings: _*)
     .settings(defaultSettings(): _*)
+    .settings(majorVersion := 2)
+    .settings((makePublicallyAvailableOnBintray := true))
     .settings(
       targetJvm := "jvm-1.8",
       libraryDependencies ++= Seq(
@@ -40,7 +45,7 @@ object HmrcBuild extends Build {
         "com.google.guava"                  %  "guava"                 % "23.0",
         "org.scalatest"                     %% "scalatest"             % "2.2.6"             % "test",
         "com.typesafe.play"                 %% "play-test"             % PlayVersion.current % "test",
-        "uk.gov.hmrc"                       %% "hmrctest"              % "2.3.0"             % "test"
+        "uk.gov.hmrc"                       %% "hmrctest"              % "3.2.0"             % "test"
       ),
       Collaborators(),
       resolvers := Seq(
