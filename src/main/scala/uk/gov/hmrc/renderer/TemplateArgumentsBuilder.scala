@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 HM Revenue & Customs
+ * Copyright 2019 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -66,6 +66,10 @@ object TemplateArgumentsBuilder {
     linkUrl: Option[String],
     dismissText: Option[String],
     gaAction: Option[String]
+  ) extends TemplateComponent
+  case class OptimizelyComponent(
+    audience: Option[String],
+    projectId: String
   ) extends TemplateComponent
 
   def apply(components: Option[TemplateComponent]*): Map[String, Any] = {
@@ -201,6 +205,15 @@ object TemplateArgumentsBuilder {
       )
     }
 
+    def addingOptimizely(arguments: Map[String, Any], optimizely: OptimizelyComponent) = {
+      arguments ++ Map(
+        "optimizely" -> Map(
+          "audience" -> optimizely.audience,
+          "projectId" -> optimizely.projectId
+        )
+      )
+    }
+
     val arguments = Map[String,Any]()
 
     components.flatten.foldLeft(arguments) {
@@ -223,6 +236,7 @@ object TemplateArgumentsBuilder {
           case c: NavTitleComponent              => addingNavTitle(arguments, c)
           case c: BetaBannerComponent            => addingBetaBanner(arguments, c)
           case c: MessagesMenuItemComponent      => addingMessagesMenuItem(arguments, c)
+          case c: OptimizelyComponent            => addingOptimizely(arguments, c)
         })
     }
 
