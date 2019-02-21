@@ -38,12 +38,12 @@ object HmrcBuild extends Build {
       targetJvm := "jvm-1.8",
       libraryDependencies ++= Seq(
         "com.typesafe.play"                 %% "play"                  % PlayVersion.current,
-        "com.github.spullara.mustache.java" %  "compiler"              % "0.9.5",
-        "com.github.spullara.mustache.java" %  "scala-extensions-2.11" % "0.9.5",
+        "com.github.spullara.mustache.java" %  "compiler"              % "0.9.6",
+        "com.github.spullara.mustache.java" %  "scala-extensions-2.11" % "0.9.6",
         "com.google.guava"                  %  "guava"                 % "23.0",
         "org.scalatest"                     %% "scalatest"             % "2.2.6"             % "test",
         "com.typesafe.play"                 %% "play-test"             % PlayVersion.current % "test",
-        "uk.gov.hmrc"                       %% "hmrctest"              % "3.2.0"             % "test"
+        "uk.gov.hmrc"                       %% "hmrctest"              % "3.5.0-play-25"             % "test"
       ),
       resolvers := Seq(
         Resolver.bintrayRepo("hmrc", "releases"),
