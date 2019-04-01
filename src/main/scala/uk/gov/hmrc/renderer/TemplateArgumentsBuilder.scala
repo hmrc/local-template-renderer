@@ -74,7 +74,9 @@ object TemplateArgumentsBuilder {
 
   case class GTMComponent(
                            gtmId: Option[String]
-                         )extends TemplateComponent
+                         )
+                          extends TemplateComponent
+
 
   def apply(components: Option[TemplateComponent]*): Map[String, Any] = {
 
@@ -218,7 +220,7 @@ object TemplateArgumentsBuilder {
       )
     }
 
-    def addingGTM(arguments: Map[String, Any], gtm: GTMComponent) = {
+    def addingGTM(arguments: Map[String, Any], gtm: GTMComponent) : Map[String,Any] = {
       arguments ++ Map(
         "googleTagManager" -> Map(
           "gtmId" -> gtm.gtmId
