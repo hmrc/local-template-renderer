@@ -28,11 +28,11 @@ object TemplateArgumentsBuilder {
 
   sealed trait StyleComponent extends TemplateComponent
   case class AccountMenuStyleComponent(
-    langUrls: Option[(String, String)] = None,
-    signoutUrl: Option[String] = None,
-    activeTab: Option[ActiveTab] = None,
-    hideAccountMenu: Boolean = false
-  ) extends StyleComponent
+                                        langUrls: Option[(String, String)] = None,
+                                        signoutUrl: Option[String] = None,
+                                        activeTab: Option[ActiveTab] = None,
+                                        hideAccountMenu: Boolean = false
+                                      ) extends StyleComponent
   case class TraditionalStyleComponent(signoutUrl: Option[String] = None) extends StyleComponent
 
   case class MessagesMenuItemComponent(unreadMessageCount: Option[Int]) extends TemplateComponent {
@@ -48,29 +48,33 @@ object TemplateArgumentsBuilder {
   case class SsoUrlComponent(url: String) extends TemplateComponent
   case class GetHelpFormComponent(html: Html) extends TemplateComponent
   case class BackLinkUrlComponent(
-    url: String,
-    text: Option[String] = None
-  ) extends TemplateComponent
+                                   url: String,
+                                   text: Option[String] = None
+                                 ) extends TemplateComponent
   case class MainContentHeaderComponent(html: Html) extends TemplateComponent
   case class ActingAttorneyBannerComponent(html: Html) extends TemplateComponent
   case class UserPropertiesComponent(isGovernmentGateway: Boolean, isVerify: Boolean, isSa: Boolean) extends TemplateComponent
   case class BetaBannerComponent(feedbackIdentifier: String) extends TemplateComponent
   case class GoogleAnalyticsComponent(
-    trackingId: String,
-    cookieDomain: Option[String],
-    arguments: (String,Option[String])*
-  ) extends TemplateComponent
+                                       trackingId: String,
+                                       cookieDomain: Option[String],
+                                       arguments: (String,Option[String])*
+                                     ) extends TemplateComponent
   case class FullWidthBannerComponent(
-    title: String,
-    text: String,
-    linkUrl: Option[String],
-    dismissText: Option[String],
-    gaAction: Option[String]
-  ) extends TemplateComponent
+                                       title: String,
+                                       text: String,
+                                       linkUrl: Option[String],
+                                       dismissText: Option[String],
+                                       gaAction: Option[String]
+                                     ) extends TemplateComponent
   case class OptimizelyComponent(
-    audience: Option[String],
-    projectId: String
-  ) extends TemplateComponent
+                                  audience: Option[String],
+                                  projectId: String
+                                ) extends TemplateComponent
+
+  case class GTMComponent(
+                           gtmId: Option[String]
+                         )extends TemplateComponent
 
   def apply(components: Option[TemplateComponent]*): Map[String, Any] = {
 
@@ -214,6 +218,14 @@ object TemplateArgumentsBuilder {
       )
     }
 
+    def addingGTM(arguments: Map[String, Any], gtm: GTMComponent) = {
+      arguments ++ Map(
+        "googleTagManager" -> Map(
+          "gtmId" -> gtm.gtmId
+        )
+      )
+    }
+
     val arguments = Map[String,Any]()
 
     components.flatten.foldLeft(arguments) {
@@ -237,6 +249,7 @@ object TemplateArgumentsBuilder {
           case c: BetaBannerComponent            => addingBetaBanner(arguments, c)
           case c: MessagesMenuItemComponent      => addingMessagesMenuItem(arguments, c)
           case c: OptimizelyComponent            => addingOptimizely(arguments, c)
+          case c: GTMComponent                   => addingGTM(arguments, c)
         })
     }
 
