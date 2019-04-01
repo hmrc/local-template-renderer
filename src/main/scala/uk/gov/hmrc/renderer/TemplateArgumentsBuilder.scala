@@ -36,7 +36,7 @@ object TemplateArgumentsBuilder {
   case class TraditionalStyleComponent(signoutUrl: Option[String] = None) extends StyleComponent
 
   case class MessagesMenuItemComponent(unreadMessageCount: Option[Int]) extends TemplateComponent {
-    def unreadMessageCountString = unreadMessageCount.flatMap { umc =>
+    def unreadMessageCountString: Option[String] = unreadMessageCount.flatMap { umc =>
       if (umc == 0) None else if (umc < 100) Some(umc.toString) else Some("99+")
     }
   }
@@ -74,13 +74,12 @@ object TemplateArgumentsBuilder {
 
   case class GTMComponent(
                            gtmId: Option[String]
-                         )
-                          extends TemplateComponent
+                         ) extends TemplateComponent
 
 
   def apply(components: Option[TemplateComponent]*): Map[String, Any] = {
 
-    def addingAccountMenuStyle(arguments: Map[String,Any], style: AccountMenuStyleComponent) = {
+    def addingAccountMenuStyle(arguments: Map[String, Any], style: AccountMenuStyleComponent): Map[String, Any] = {
       arguments ++ Map(
         "hideAccountMenu"        -> style.hideAccountMenu,
         "showOrganisationLogo"   -> false,
@@ -99,13 +98,13 @@ object TemplateArgumentsBuilder {
       )
     }
 
-    def addingMessagesMenuItem(arguments: Map[String,Any], component: MessagesMenuItemComponent) = {
+    def addingMessagesMenuItem(arguments: Map[String, Any], component: MessagesMenuItemComponent): Map[String, Any] = {
       arguments ++ Map(
         "unreadMessageCount" -> component.unreadMessageCountString
       )
     }
 
-    def addingTraditionalStyle(arguments: Map[String,Any], style: TraditionalStyleComponent) = {
+    def addingTraditionalStyle(arguments: Map[String, Any], style: TraditionalStyleComponent): Map[String, Any] = {
       arguments ++ Map(
         "hideAccountMenu"      -> true,
         "showOrganisationLogo" -> true,
@@ -115,37 +114,37 @@ object TemplateArgumentsBuilder {
       )
     }
 
-    def addingCssLinks(arguments: Map[String,Any], elements: CssLinksComponent) = {
+    def addingCssLinks(arguments: Map[String, Any], elements: CssLinksComponent): Map[String, Any] = {
       arguments ++ Map(
         "linkElems" -> elements.elements.map( e => Map("url" -> e.url, "ieVersionCondition" -> e.ieVersionCondition, "print" -> e.isPrint) )
       )
     }
 
-    def addingScripts(arguments: Map[String,Any], scripts: ScriptsComponent) = {
+    def addingScripts(arguments: Map[String, Any], scripts: ScriptsComponent): Map[String, Any] = {
       arguments ++ Map(
         "scriptElems" -> scripts.urls.map( url => Map("url" -> url) )
       )
     }
 
-    def addingPageTitle(arguments: Map[String,Any], pageTitle: PageTitleComponent) = {
+    def addingPageTitle(arguments: Map[String, Any], pageTitle: PageTitleComponent): Map[String, Any] = {
       arguments ++ Map(
         "pageTitle" -> pageTitle.title
       )
     }
 
-    def addingInlineScript(arguments: Map[String,Any], inlineScript: InlineScriptComponent) = {
+    def addingInlineScript(arguments: Map[String, Any], inlineScript: InlineScriptComponent): Map[String, Any] = {
       arguments ++ Map(
         "inlineScript" -> inlineScript.script
       )
     }
 
-    def addingSsoUrl(arguments: Map[String,Any], ssoUrl: SsoUrlComponent) = {
+    def addingSsoUrl(arguments: Map[String, Any], ssoUrl: SsoUrlComponent): Map[String, Any] = {
       arguments ++ Map(
         "ssoUrl" -> ssoUrl.url
       )
     }
 
-    def addingGoogleAnalytics(arguments: Map[String,Any], googleAnalytics: GoogleAnalyticsComponent) = {
+    def addingGoogleAnalytics(arguments: Map[String, Any], googleAnalytics: GoogleAnalyticsComponent): Map[String, Any] = {
       arguments ++ Map(
         "googleAnalytics" -> (Map(
           "trackingId" -> googleAnalytics.trackingId,
@@ -154,7 +153,7 @@ object TemplateArgumentsBuilder {
       )
     }
 
-    def addingFullWidthBanner(arguments: Map[String,Any], fullWidthBanner: FullWidthBannerComponent) = {
+    def addingFullWidthBanner(arguments: Map[String, Any], fullWidthBanner: FullWidthBannerComponent): Map[String, Any] = {
       arguments ++ Map(
         "fullWidthBannerTitle" -> fullWidthBanner.title,
         "fullWidthBannerText" -> fullWidthBanner.text,
@@ -164,26 +163,26 @@ object TemplateArgumentsBuilder {
       )
     }
 
-    def addingGetHelpForm(arguments: Map[String,Any], getHelpFormComponent: GetHelpFormComponent) = {
+    def addingGetHelpForm(arguments: Map[String, Any], getHelpFormComponent: GetHelpFormComponent): Map[String, Any] = {
       arguments ++ Map(
         "getHelpForm" -> getHelpFormComponent.html
       )
     }
 
-    def addingMainContentHeader(arguments: Map[String,Any], mainContentHeaderComponent: MainContentHeaderComponent) = {
+    def addingMainContentHeader(arguments: Map[String, Any], mainContentHeaderComponent: MainContentHeaderComponent): Map[String, Any] = {
       arguments ++ Map(
         "mainContentHeader" -> mainContentHeaderComponent.html
       )
     }
 
-    def addingBackLinkUrl(arguments: Map[String,Any], backLinkUrlComponent: BackLinkUrlComponent) = {
+    def addingBackLinkUrl(arguments: Map[String, Any], backLinkUrlComponent: BackLinkUrlComponent): Map[String, Any] = {
       arguments ++ Map(
         "backlinkUrl" -> backLinkUrlComponent.url,
         "backlinkUrlText" -> backLinkUrlComponent.text
       )
     }
 
-    def addingUserProperties(arguments: Map[String,Any], userPropertiesComponent: UserPropertiesComponent) = {
+    def addingUserProperties(arguments: Map[String, Any], userPropertiesComponent: UserPropertiesComponent): Map[String, Any] = {
       arguments ++ Map(
         "isGovernmentGateway" -> userPropertiesComponent.isGovernmentGateway,
         "isSa" -> userPropertiesComponent.isSa,
@@ -191,19 +190,19 @@ object TemplateArgumentsBuilder {
       )
     }
 
-    def addingActingAttorneyBanner(arguments: Map[String,Any], actingAttorneyBannerComponent: ActingAttorneyBannerComponent) = {
+    def addingActingAttorneyBanner(arguments: Map[String, Any], actingAttorneyBannerComponent: ActingAttorneyBannerComponent): Map[String, Any] = {
       arguments ++ Map(
         "actingAttorneyBanner" -> actingAttorneyBannerComponent.html
       )
     }
 
-    def addingNavTitle(arguments: Map[String,Any], pageTitle: NavTitleComponent) = {
+    def addingNavTitle(arguments: Map[String, Any], pageTitle: NavTitleComponent): Map[String, Any] = {
       arguments ++ Map(
         "navTitle" -> pageTitle.title
       )
     }
 
-    def addingBetaBanner(arguments: Map[String,Any], betaBannerComponent: BetaBannerComponent) = {
+    def addingBetaBanner(arguments: Map[String, Any], betaBannerComponent: BetaBannerComponent): Map[String, Any] = {
       arguments ++ Map(
         "betaBanner" -> Map(
           "feedbackIdentifier" -> betaBannerComponent.feedbackIdentifier
@@ -211,7 +210,7 @@ object TemplateArgumentsBuilder {
       )
     }
 
-    def addingOptimizely(arguments: Map[String, Any], optimizely: OptimizelyComponent) = {
+    def addingOptimizely(arguments: Map[String, Any], optimizely: OptimizelyComponent): Map[String, Any] = {
       arguments ++ Map(
         "optimizely" -> Map(
           "audience" -> optimizely.audience,
@@ -220,7 +219,7 @@ object TemplateArgumentsBuilder {
       )
     }
 
-    def addingGTM(arguments: Map[String, Any], gtm: GTMComponent) : Map[String,Any] = {
+    def addingGTM(arguments: Map[String, Any], gtm: GTMComponent): Map[String, Any] = {
       arguments ++ Map(
         "googleTagManager" -> Map(
           "gtmId" -> gtm.gtmId
@@ -228,7 +227,7 @@ object TemplateArgumentsBuilder {
       )
     }
 
-    val arguments = Map[String,Any]()
+    val arguments = Map[String, Any]()
 
     components.flatten.foldLeft(arguments) {
       (acc, component) =>
