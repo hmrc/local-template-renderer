@@ -87,7 +87,7 @@ class TemplateRendererTest extends FlatSpec with Matchers with WithFakeApplicati
         if(httpCallSuccess) Future.successful(bodyToReturn)
         else Future.failed(new RuntimeException("Bad Gateway"))
       }
-      
+
     }
 
     def xhtmlFromString(htmlString: String): Elem = XML.loadString(htmlString)
