@@ -31,7 +31,8 @@ object TemplateArgumentsBuilder {
                                         langUrls: Option[(String, String)] = None,
                                         signoutUrl: Option[String] = None,
                                         activeTab: Option[ActiveTab] = None,
-                                        hideAccountMenu: Boolean = false
+                                        hideAccountMenu: Boolean = false,
+                                        profileUrl: Option[String] = None
                                       ) extends StyleComponent
   case class TraditionalStyleComponent(signoutUrl: Option[String] = None) extends StyleComponent
 
@@ -88,6 +89,7 @@ object TemplateArgumentsBuilder {
         "activeTabMessages"      -> (style.activeTab == Some(ActiveTabMessages)),
         "activeTabCheckProgress" -> (style.activeTab == Some(ActiveTabCheckProgress)),
         "activeTabYourAccount"   -> (style.activeTab == Some(ActiveTabYourAccount)),
+        "profileUrl"             -> style.profileUrl,
         "signOutUrl"             -> style.signoutUrl,
         "langSelector" -> {
           style.langUrls match {
