@@ -7,7 +7,6 @@ lazy val root = (project in file("."))
   .enablePlugins(SbtAutoBuildPlugin, SbtGitVersioning, SbtArtifactory)
   .settings(majorVersion := 2)
   .settings(makePublicallyAvailableOnBintray := true)
-  .settings(PlayCrossCompilation.playCrossCompilationSettings: _*)
   .settings(
     scalaVersion := "2.12.8",
     crossScalaVersions := Seq("2.11.12", "2.12.8")
