@@ -1,3 +1,4 @@
+import PlayCrossCompilation._
 import uk.gov.hmrc.DefaultBuildSettings.targetJvm
 
 val appName = "local-template-renderer"
@@ -8,7 +9,7 @@ lazy val root = (project in file("."))
   .settings(makePublicallyAvailableOnBintray := true)
   .settings(PlayCrossCompilation.playCrossCompilationSettings: _*)
   .settings(
-    scalaVersion := "2.11.12",
+    scalaVersion := "2.12.8",
     crossScalaVersions := Seq("2.11.12", "2.12.8")
   )
   .settings(
@@ -22,8 +23,8 @@ lazy val root = (project in file("."))
         "com.google.guava" % "guava" % "29.0-jre",
         "org.scalactic" %% "scalactic" % "3.0.7",
         "org.scalatest" %% "scalatest" % "3.0.7" % "test",
-        "com.typesafe.play" %% "play-test" % PlayCrossCompilation.version % "test",
-        "org.pegdown" % "pegdown" % "1.6.0" % "test"),
+        "org.pegdown" % "pegdown" % "1.6.0" % "test",
+        "com.typesafe.play" %% "play-test" % PlayCrossCompilation.version % "test"),
       play25 = Seq("uk.gov.hmrc" %% "hmrctest" % "3.5.0-play-25" % "test"),
       play26 = Seq("org.scalatestplus.play" %% "scalatestplus-play" % "3.1.2" % "test")
     ),
@@ -33,4 +34,4 @@ lazy val root = (project in file("."))
     )
   )
 
-
+playCrossCompilationSettings
