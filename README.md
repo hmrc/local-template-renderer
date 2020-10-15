@@ -1,8 +1,6 @@
 
 # local-template-renderer
 
-[![Build Status](https://travis-ci.org/hmrc/local-template-renderer.svg?branch=master)](https://travis-ci.org/hmrc/local-template-renderer) [ ![Download](https://api.bintray.com/packages/hmrc/releases/local-template-renderer/images/download.svg) ](https://bintray.com/hmrc/releases/local-template-renderer/_latestVersion)
-
 A library for pulling in a mustache template from a remote template provider and renders it locally.
 
 It is responsible:
