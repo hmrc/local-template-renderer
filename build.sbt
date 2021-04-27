@@ -26,10 +26,6 @@ lazy val root = (project in file("."))
         "com.typesafe.play" %% "play-test" % PlayCrossCompilation.version % "test"),
       play25 = Seq("uk.gov.hmrc" %% "hmrctest" % "3.5.0-play-25" % "test"),
       play26 = Seq("org.scalatestplus.play" %% "scalatestplus-play" % "3.1.2" % "test")
-    ),
-    resolvers := Seq(
-      Resolver.bintrayRepo("hmrc", "releases"),
-      Resolver.typesafeRepo("releases")
     )
   )
 
