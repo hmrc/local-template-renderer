@@ -6,7 +6,7 @@ object PlayCrossCompilation extends AbstractPlayCrossCompilation(defaultPlayVers
   def version: String = playVersion match {
     case Play26 => "2.6.11"
     case Play27 => "2.7.5"
-    case Play28 => "2.8.0"
+    case Play28 => "2.8.7"
   }
 
   override def playCrossScalaBuilds(scalaVersions: Seq[String]): Seq[String] =
