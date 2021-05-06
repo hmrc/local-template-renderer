@@ -22,6 +22,7 @@ lazy val root = (project in file("."))
         "org.scalactic" %% "scalactic" % "3.2.7",
         "org.scalatest" %% "scalatest" % "3.0.8" % "test",
         "org.pegdown" % "pegdown" % "1.6.0" % "test",
+        "com.vladsch.flexmark" %  "flexmark-all" % "0.35.10" % "test",
         "com.typesafe.play" %% "play-test" % PlayCrossCompilation.version % "test"),
       play26 = Seq("org.scalatestplus.play" %% "scalatestplus-play" % "3.1.2" % "test"),
       play27 = Seq("org.scalatestplus.play" %% "scalatestplus-play" % "4.0.3" % "test"),
