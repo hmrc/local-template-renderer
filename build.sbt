@@ -8,8 +8,7 @@ lazy val root = (project in file("."))
   .settings(majorVersion := 2)
   .settings(makePublicallyAvailableOnBintray := true)
   .settings(
-    scalaVersion := "2.12.12",
-    crossScalaVersions := Seq("2.12.12", "2.12.8")
+    scalaVersion := "2.12.12"
   )
   .settings(
     name := appName,
