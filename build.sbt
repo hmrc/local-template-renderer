@@ -19,7 +19,6 @@ lazy val root = (project in file("."))
         "com.github.spullara.mustache.java" % "compiler" % "0.9.7",
         "com.github.spullara.mustache.java" % "scala-extensions-2.11" % "0.9.6",
         "com.google.guava" % "guava" % "30.1-jre",
-        "org.scalactic" %% "scalactic" % "3.2.7",
         "org.scalatest" %% "scalatest" % "3.0.8" % "test",
         "org.pegdown" % "pegdown" % "1.6.0" % "test",
         "com.vladsch.flexmark" %  "flexmark-all" % "0.35.10" % "test",
