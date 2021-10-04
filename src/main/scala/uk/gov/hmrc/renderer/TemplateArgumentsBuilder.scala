@@ -89,6 +89,7 @@ object TemplateArgumentsBuilder {
         "activeTabMessages"      -> (style.activeTab == Some(ActiveTabMessages)),
         "activeTabCheckProgress" -> (style.activeTab == Some(ActiveTabCheckProgress)),
         "activeTabYourAccount"   -> (style.activeTab == Some(ActiveTabYourAccount)),
+        "activeTabYourProfile"   -> (style.activeTab == Some(ActiveTabYourProfile)),
         "profileUrl"             -> style.profileUrl,
         "signOutUrl"             -> style.signoutUrl,
         "langSelector" -> {

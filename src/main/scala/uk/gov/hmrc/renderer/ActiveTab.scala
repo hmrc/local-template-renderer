@@ -22,3 +22,4 @@ case object ActiveTabHome extends ActiveTab
 case object ActiveTabMessages extends ActiveTab
 case object ActiveTabCheckProgress extends ActiveTab
 case object ActiveTabYourAccount extends ActiveTab
+case object ActiveTabYourProfile extends ActiveTab
