@@ -1,5 +1,7 @@
 
-# local-template-renderer
+# local-template-renderer - DEPRECATED
+
+## Services need to move to the [play-frontend-hmrc](https://github.com/hmrc/play-frontend-hmrc) library
 
 A library for pulling in a mustache template from a remote template provider and renders it locally.
 
